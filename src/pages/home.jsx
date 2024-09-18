@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import data from '../category.json';  // Import JSON data
 import './home.css';
-
+import { Link } from 'react-router-dom';
 // Function to import all images from the 'images' folder
 const importAll = (r) => {
   let images = {};
@@ -27,7 +27,7 @@ export default function Home() {
           <Card.Body>
             <Card.Title>{item.name}</Card.Title>
             <Card.Text>
-              <Button className='button'>View more</Button>
+              <Link to={"/items"}><Button className='button'>View more</Button></Link>
             </Card.Text>
           </Card.Body>
         </Card>
