@@ -1,0 +1,28 @@
+body{
+    background-color: #ffd1d4de;
+}
+/* #c27e79 - brown */
+/* #ffffe0-cream 
+#f2959d-next pink*/
+.container{
+    background-color:#f2959d ;
+}
+h1{
+    font-size: 5vw;
+    padding-top: 10vh;
+    z-index: 2;
+}
+.flower{
+    width: 5vw;
+    position: relative;
+    bottom: 22.5vh;
+    right: 4.5vw;
+    z-index: -1;
+}
+.girl{
+    width: 8vw;
+    position: relative;
+    top: -15vh;
+    left: 7vw;
+
+}
