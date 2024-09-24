@@ -1,4 +1,10 @@
+.body{
+    background-color: red;
+}
+
+
 .chat{
+    background-color: #ce0000;
     flex: 2;
     border-left: 1px solid #dddddd35;
     border-right: 1px solid #dddddd35;

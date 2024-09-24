@@ -34,46 +34,69 @@ const Login = () => {
     setLoading(true);
     const formData = new FormData(e.target);
     const { username, email, password } = Object.fromEntries(formData);
+    
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-
       const imgUrl = await upload(avatar.file);
-
-      await setDoc(doc(db, "users", res.user.uid), {
-        username,
-        email,
-        avatar: imgUrl,
-        id: res.user.uid,
-        blocked: [],
-      });
-
-      await setDoc(doc(db, "userchats", res.user.uid), {
-        chats: [],
-      });
-
+      console.log("Image uploaded successfully, URL:", imgUrl);
+      
+      // First Firestore write
+      try {
+        await setDoc(doc(db, "users", res.user.uid), {
+          username,
+          email,
+          avatar: imgUrl,
+          id: res.user.uid,
+          blocked: [],
+        });
+        console.log("test1");
+      } catch (err) {
+        console.log("Error setting user document:", err);
+        throw err; // Rethrow to catch in the outer block
+      }
+  
+      // Second Firestore write
+      try {
+        await setDoc(doc(db, "userchats", res.user.uid), {
+          chats: [],
+        });
+        console.log("test2");
+      } catch (err) {
+        console.log("Error setting userchats document:", err);
+        throw err; // Rethrow to catch in the outer block
+      }
+  
       toast.success("Account created! You can login now!");
+      console.log("Success toast fired");
     } catch (err) {
+      console.log("***************");
       console.log(err);
       toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleLogin = async (e) => {
+    console.log("test0")
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.target);
     const { email, password } = Object.fromEntries(formData);
-
+    console.log("test");
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
+      console.log("****************")
       console.log(err);
       toast.error(err.message);
     } finally {
       setLoading(false);
+      console.log("test3")
     }
+    
   };
 
   return (

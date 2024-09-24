@@ -1,4 +1,3 @@
-// Code by Utsav Patel
 import { useEffect } from "react";
 import "./App.css";
 import Chat from "./components/chat/Chat";
@@ -14,20 +13,30 @@ import { useChatStore } from "./lib/chatStore";
 const App = () => {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
-
+  console.log("current user");
+  console.log(currentUser);
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
-      fetchUserInfo(user?.uid);
+      if (user) {
+        // User is authenticated, print user info
+        console.log("User logged in:", user);
+        fetchUserInfo(user.uid);
+      } else {
+        console.log("No user is authenticated");
+      }
     });
+
     return () => {
       unSub();
     };
   }, [fetchUserInfo]);
 
-  if (isLoading) return <div className="loading">Loading...</div>;
+  if (isLoading) return <div className="loading">Hayyyy Rama...</div>;
 
   return (
     <div className="container">
+      <h3>Current User: {currentUser ? currentUser.name : "Guest"}</h3>
+
       {currentUser ? (
         <>
           <List />
