@@ -31,7 +31,7 @@ const App = () => {
     };
   }, [fetchUserInfo]);
 
-  if (isLoading) return <div className="loading">Hayyyy Rama...</div>;
+  // if (isLoading) return <div className="loading">Hayyyy Rama...</div>;
 
   return (
     <div className="container">

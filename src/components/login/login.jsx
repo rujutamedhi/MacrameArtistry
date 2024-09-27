@@ -31,7 +31,7 @@ const Login = () => {
   // to handle request for "form register"
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(false);
     const formData = new FormData(e.target);
     const { username, email, password } = Object.fromEntries(formData);
     

@@ -62,7 +62,7 @@ const AddUser = () => {
         }),
       });
 
-      await updateDoc(doc(userChatsRef, userCurrent.id), {
+      await updateDoc(doc(userChatsRef, currentUser.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
           lastMessage: "",
@@ -70,6 +70,7 @@ const AddUser = () => {
           updatedAt: Date.now(),
         }),
       });
+      console.log("testtt")
     } catch (err) {
       console.log(err);
     }

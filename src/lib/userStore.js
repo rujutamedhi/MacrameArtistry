@@ -7,7 +7,7 @@ export const useUserStore = create((set) => ({
   isLoading: true,
 
   fetchUserInfo: async (uid) => {
-    if (!uid) return set({ currentUser: null, isLoading: false });
+    if (!uid) return set({ currentUser: null, isLoading: true });
     try {
       const docRef = doc(db, "users", uid);
       const docSnap = await getDoc(docRef);
