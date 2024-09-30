@@ -1,0 +1,13 @@
+div .login {
+    width: 5vw;
+    cursor: pointer;
+}
+.chat{
+    width: 3vw;
+    margin-right: 5vw;
+    margin-left: 85vw;
+    cursor: pointer;
+}
+div .navbar{
+    display: flex;
+}
