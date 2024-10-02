@@ -8,7 +8,8 @@ import { useUserStore } from "../lib/userStore"; // Import the user store to che
 export default function Navbar() {
   const { currentUser } = useUserStore(); // Get the current user from the user store
   const navigate = useNavigate(); // Use navigate to programmatically change the route
-
+  console.log("**************")
+console.log(currentUser)
   const handleChatClick = () => {
     if (currentUser) {
       // User is logged in, navigate to the chat page
