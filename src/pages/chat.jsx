@@ -1,49 +1,33 @@
-// Code by Utsav Patel
 import React, { useRef, useEffect, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-// import "../chat/chat.css";
-import {
-  arrayUnion,
-  doc,
-  getDoc,
-  onSnapshot,
-  updateDoc,
-} from "firebase/firestore";
+import { arrayUnion, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { useChatStore } from "../lib/chatStore";
 import { useUserStore } from "../lib/userStore";
 import upload from "../lib/upload";
 
 const Chat = () => {
-  const [chat, setChat] = useState();
+  const [chat, setChat] = useState([]);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const [img, setImg] = useState({
-    file: null,
-    url: "",
-  });
-
+  const [img, setImg] = useState({ file: null, url: "" });
+  
   const { currentUser } = useUserStore();
-  const { chatId, user, isCurrentUserBlocked, isRecieverBlocked } =
-    useChatStore();
-
+  
   const endRef = useRef(null);
+  
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (!chatId || !currentUser) return; // Ensure chatId and currentUser are available
+  }, [chat]);
   
-    const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
-      setChat(res.data());
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "adminChat", "messages"), (res) => {
+      setChat(res.data()?.messages || []); // Fetch messages from adminChat document
     });
     return () => {
       unSub();
     };
-  }, [chatId, currentUser]); // Add currentUser as a dependency
+  }, []);
   
-
   const handleEmoji = (e) => {
     setText((prev) => prev + e.emoji);
     setOpen(false);
@@ -66,7 +50,7 @@ const Chat = () => {
       if (img.file) {
         imgUrl = await upload(img.file);
       }
-      await updateDoc(doc(db, "chats", chatId), {
+      await updateDoc(doc(db, "adminChat", "messages"), {
         messages: arrayUnion({
           senderId: currentUser.id,
           text,
@@ -74,65 +58,23 @@ const Chat = () => {
           ...(imgUrl && { img: imgUrl }),
         }),
       });
-
-      const userIDs = [currentUser.id, user.id];
-      userIDs.forEach(async (id) => {
-        const userChatRef = doc(db, "userchats", id);
-        const userChatsSnapshot = await getDoc(userChatRef);
-        if (userChatsSnapshot.exists()) {
-          const userChatData = userChatsSnapshot.data();
-          const chatIndex = userChatData.chats.findIndex(
-            (c) => c.chatId === chatId
-          );
-          userChatData.chats[chatIndex].lastMessage = text;
-          userChatData.chats[chatIndex].isSeen =
-            id === currentUser.id ? true : false;
-          userChatData.chats[chatIndex].updatedAt = Date.now();
-
-          await updateDoc(userChatRef, {
-            chats: userChatData.chats,
-          });
-        }
-      });
     } catch (err) {
       console.log(err);
     }
-    setImg({
-      file: null,
-      url: "",
-    });
+
+    setImg({ file: null, url: "" });
     setText("");
   };
 
   return (
     <div className="chat">
-      <h3>hello</h3>
-      <div className="top">
-        <div className="user">
-          <img src={user?.avatar || "../avatar.png"} alt="" />
-          <div className="texts">
-            <span>{user?.username}</span>
-            <p>Lorem ipsum dolor sit amet.</p>
-          </div>
-        </div>
-        <div className="icons">
-          <img src="../phone.png" alt="" />
-          <img src="../video.png" alt="" />
-          <img src="../info.png" alt="" />
-        </div>
-      </div>
+      <h3>Chat with Admin</h3>
       <div className="center">
-        {chat?.messages?.map((message) => (
-          <div
-            className={
-              message.senderId === currentUser?.id ? "message own" : "message"
-            }
-            key={message?.createAt}
-          >
+        {chat.map((message) => (
+          <div className={message.senderId === currentUser.id ? "message own" : "message"} key={message.createdAt}>
             <div className="texts">
-              {message.img && <img src={message.img} />}
+              {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>
-              {/*<span>{message}</span>*/}
             </div>
           </div>
         ))}
@@ -161,14 +103,9 @@ const Chat = () => {
         </div>
         <input
           type="text"
-          placeholder={
-            isCurrentUserBlocked || isRecieverBlocked
-              ? "You cannot send a message"
-              : "Type a message"
-          }
+          placeholder="Type a message"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          disabled={isCurrentUserBlocked || isRecieverBlocked}
         />
         <div className="emoji">
           <img
@@ -180,15 +117,12 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button
-          className="sendButton"
-          onClick={handleSend}
-          disabled={isCurrentUserBlocked || isRecieverBlocked}
-        >
+        <button className="sendButton" onClick={handleSend}>
           Send
         </button>
       </div>
     </div>
   );
 };
+
 export default Chat;
