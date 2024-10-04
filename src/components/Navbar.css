@@ -11,3 +11,8 @@ div .login {
 div .navbar{
     display: flex;
 }
+
+div .logout{
+    width: 3vw;
+    cursor: pointer;
+}
