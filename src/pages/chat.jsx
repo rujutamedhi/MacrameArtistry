@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { arrayUnion, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, doc, onSnapshot, updateDoc, addDoc, orderBy, query, arrayUnion } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useUserStore } from "../lib/userStore";
 import upload from "../lib/upload";
@@ -11,23 +11,39 @@ const Chat = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState({ file: null, url: "" });
   
-  const { currentUser } = useUserStore();
+  const { currentUser } = useUserStore(); // Fetch current user info
+  const adminId = "admin-id"; // Assign a unique identifier for the admin
   
   const endRef = useRef(null);
-  
+
+  // Scroll to the latest message
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
-  
+
+  // Fetch messages between the current user and the admin
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "adminChat", "messages"), (res) => {
-      setChat(res.data()?.messages || []); // Fetch messages from adminChat document
+    const q = query(
+      collection(db, "adminChat"),
+      orderBy("createdAt", "asc")
+    );
+
+    const unSub = onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs
+        .map((doc) => doc.data())
+        .filter(
+          (message) =>
+            (message.senderId === currentUser.id && message.receiverId === adminId) ||
+            (message.senderId === adminId && message.receiverId === currentUser.id)
+        ); // Filter messages
+      setChat(messages);
     });
+
     return () => {
       unSub();
     };
-  }, []);
-  
+  }, [currentUser.id]);
+
   const handleEmoji = (e) => {
     setText((prev) => prev + e.emoji);
     setOpen(false);
@@ -45,23 +61,24 @@ const Chat = () => {
   const handleSend = async () => {
     if (text === "") return;
     let imgUrl = null;
-
+   console.log(currentUser.name)
     try {
       if (img.file) {
         imgUrl = await upload(img.file);
       }
-      await updateDoc(doc(db, "adminChat", "messages"), {
-        messages: arrayUnion({
-          senderId: currentUser.id,
-          text,
-          createdAt: new Date(),
-          ...(imgUrl && { img: imgUrl }),
-        }),
+      await addDoc(collection(db, "adminChat"), {
+        senderId: currentUser.id,
+  receiverId: adminId,
+  text,
+  createdAt: new Date(),
+  senderName: currentUser.username, // Add sender's name
+  ...(imgUrl && { img: imgUrl }),
       });
     } catch (err) {
       console.log(err);
+      
     }
-
+   
     setImg({ file: null, url: "" });
     setText("");
   };
@@ -71,7 +88,10 @@ const Chat = () => {
       <h3>Chat with Admin</h3>
       <div className="center">
         {chat.map((message) => (
-          <div className={message.senderId === currentUser.id ? "message own" : "message"} key={message.createdAt}>
+          <div
+            className={message.senderId === currentUser.id ? "message own" : "message"}
+            key={message.createdAt}
+          >
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>

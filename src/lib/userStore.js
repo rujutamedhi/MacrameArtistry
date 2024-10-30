@@ -17,6 +17,8 @@ export const useUserStore = create((set, get) => ({
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         set({ currentUser: docSnap.data(), isLoading: false });
+        
+        
         console.log("User data fetched successfully:", docSnap.data()); // Log the user data fetched
       } else {
         console.log("No such user document");

@@ -13,6 +13,8 @@ import { useEffect } from "react";
 import { auth } from "./lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import Chat from './pages/chat';
+import Adminhome from './pages/Adminhome';
+import UserMessages from './pages/Usermessages';
 function App() {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
@@ -38,6 +40,7 @@ function App() {
     <Router> {/* Wrap everything inside Router */}
     <Navbar />
       <div className="App">
+        {/* <h3>{currentUser.username}</h3> */}
         <Name /> {/* Render your Name component */}
         <Routes>
           <Route path="/" element={<Home />} />
@@ -45,6 +48,8 @@ function App() {
 <Route path='/login' element={<Login/>}/>
 <Route path='/register' element={<Register/>}/>
 <Route path='/chat' element={<Chat/>}/>
+<Route path='/adminhome' element={<Adminhome/>}/>
+<Route path="/messages/:userId" element={<UserMessages />} />
         </Routes>
       </div>
     </Router>
