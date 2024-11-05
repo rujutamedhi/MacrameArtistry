@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { collection, doc, onSnapshot, updateDoc, addDoc, orderBy, query, arrayUnion } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useUserStore } from "../lib/userStore";
 import upload from "../lib/upload";
@@ -33,8 +33,8 @@ const Chat = () => {
         .map((doc) => doc.data())
         .filter(
           (message) =>
-            (message.senderId === currentUser.id && message.receiverId === adminId) ||
-            (message.senderId === adminId && message.receiverId === currentUser.id)
+            (message.senderId === currentUser.id && message.receiverId === "admin-id") ||
+            (message.senderId === "admin-id" && message.receiverId === currentUser.id)
         ); // Filter messages
       setChat(messages);
     });
@@ -61,24 +61,24 @@ const Chat = () => {
   const handleSend = async () => {
     if (text === "") return;
     let imgUrl = null;
-   console.log(currentUser.name)
+
     try {
       if (img.file) {
         imgUrl = await upload(img.file);
       }
       await addDoc(collection(db, "adminChat"), {
         senderId: currentUser.id,
-  receiverId: adminId,
-  text,
-  createdAt: new Date(),
-  senderName: currentUser.username, // Add sender's name
-  ...(imgUrl && { img: imgUrl }),
+      receiverId: "admin-id",
+      text: text,
+      createdAt: new Date(), // Consistent timestamp field
+      senderName: currentUser.username, // Consistent sender name field
+      ...(imgUrl && { img: imgUrl }), // Include image URL if it exists
       });
     } catch (err) {
-      console.log(err);
-      
+      console.log("Error sending message:", err);
     }
-   
+
+    // Clear the input and image state
     setImg({ file: null, url: "" });
     setText("");
   };
@@ -87,7 +87,7 @@ const Chat = () => {
     <div className="chat">
       <h3>Chat with Admin</h3>
       <div className="center">
-        {chat.map((message) => (
+        {chat.map((message, index) => (
           <div
             className={message.senderId === currentUser.id ? "message own" : "message"}
             key={message.createdAt}
