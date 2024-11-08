@@ -108,39 +108,36 @@ const Chat = () => {
         <div ref={endRef}></div>
       </div>
       <div className="bottom">
-        <div className="icons">
-          <label htmlFor="file">
-            <img src="../img.png" alt="" />
-          </label>
-          <input
-            type="file"
-            id="file"
-            style={{ display: "none" }}
-            onChange={handleImg}
-          />
-          <img src="../camera.png" alt="" />
-          <img src="../mic.png" alt="" />
-        </div>
-        <input
-          type="text"
-          placeholder="Type a message"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <div className="emoji">
-          <img
-            src="../emoji.png"
-            alt=""
-            onClick={() => setOpen((prev) => !prev)}
-          />
-          <div className="picker">
-            <EmojiPicker open={open} onEmojiClick={handleEmoji} />
-          </div>
-        </div>
-        <button className="sendButton" onClick={handleSend}>
-          Send
-        </button>
-      </div>
+  <div className="icons">
+    <label htmlFor="file">
+      <img src="../upload.png" alt="Upload" /> {/* Use a paperclip or image icon here */}
+    </label>
+    <input
+      type="file"
+      id="file"
+      style={{ display: "none" }}
+      onChange={handleImg}
+    />
+  </div>
+  <input
+    type="text"
+    placeholder="Type a message"
+    value={text}
+    onChange={(e) => setText(e.target.value)}
+  />
+  <div className="emoji">
+    <img
+      src="../emoji.png"
+      alt="Emoji Picker"
+      onClick={() => setOpen((prev) => !prev)}
+    />
+    {open && <EmojiPicker onEmojiClick={handleEmoji} />}
+  </div>
+  <button className="sendButton" onClick={handleSend}>
+    Send
+  </button>
+</div>
+
     </div>
   );
 };
